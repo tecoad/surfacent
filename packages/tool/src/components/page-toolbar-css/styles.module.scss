@@ -1,0 +1,502 @@
+// Page Feedback Toolbar - CSS-only version (no framer-motion)
+// Uses CSS animations for all transitions
+
+// Protect stroke-based icons from host page `svg { fill: currentColor }` rules.
+// Scoped to the toolbar's own containers to avoid breaking host SVGs that use
+// fill="none" with CSS-based fills (e.g. Tailwind's fill-current).
+.toolbar,
+.markersLayer,
+.fixedMarkersLayer {
+  svg[fill="none"] {
+    fill: none !important;
+  }
+
+  svg[fill="none"] :not([fill]) {
+    fill: none !important;
+  }
+}
+
+// Protect toolbar elements from host page global CSS.
+// The toolbar is portaled to document.body, so global rules like
+// `button { background: black }` leak in. :where() zeroes specificity
+// so our component class styles (0,1,0) always win by source order.
+// Only reset cosmetic properties that global CSS commonly overrides —
+// avoid `all: unset` which also nukes layout props (box-sizing,
+
+// =============================================================================
+// Animation Keyframes
+// =============================================================================
+
+@keyframes badgeEnter {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes hoverHighlightIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes hoverTooltipIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// =============================================================================
+// Toolbar
+// =============================================================================
+
+:host {
+  /* Set here rather than inline so a consumer className rule can still hide the toolbar. */
+  display: contents;
+  position: fixed;
+  top: auto;
+  left: auto;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 100000;
+}
+
+// The boxless host stays reachable by consumer className rules. Pass only
+// positioning through to the toolbar; the rest of the UI remains isolated.
+.positionContext,
+.toolbar {
+  position: inherit;
+  top: inherit;
+  left: inherit;
+  bottom: inherit;
+  right: inherit;
+  z-index: inherit;
+}
+
+.toolbar {
+  // +40px for the design settings button.
+  width: 377px;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  pointer-events: none;
+  transition:
+    left 0.36s cubic-bezier(0.19, 1, 0.22, 1),
+    top 0s,
+    right 0s,
+    bottom 0s;
+
+  // Follow the pointer immediately; only automatic edge corrections ease.
+  &[data-dragging="true"] {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toolbar {
+    transition: none;
+  }
+}
+
+// Only the strokes forming the X need a constant width. Applying this to the
+
+.badge {
+  position: absolute;
+  top: -13px;
+  right: -13px;
+  -webkit-user-select: none;
+  user-select: none;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background-color: var(--surfacent-color-accent);
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  opacity: 1;
+  transition:
+    transform 0.3s ease,
+    opacity 0.2s ease;
+  transform: scale(1);
+
+  &.entrance {
+    animation: badgeEnter 0.3s cubic-bezier(0.34, 1.2, 0.64, 1) 0.4s both;
+  }
+}
+
+.shortcut {
+  margin-left: 4px;
+  opacity: 0.5;
+}
+
+
+// =============================================================================
+// Overlay
+// =============================================================================
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99997;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+// =============================================================================
+// Hover Highlight
+// =============================================================================
+
+.hoverHighlight {
+  position: fixed;
+  border: 2px solid
+    color-mix(in srgb, var(--surfacent-color-accent) 50%, transparent);
+  border-radius: 4px;
+  background-color: color-mix(
+    in srgb,
+    var(--surfacent-color-accent) 4%,
+    transparent
+  );
+  pointer-events: none !important;
+  box-sizing: border-box;
+  will-change: opacity;
+  contain: layout style;
+
+  &.enter {
+    animation: hoverHighlightIn 0.12s ease-out forwards;
+  }
+}
+
+.singleSelectOutline {
+  position: fixed;
+  border: 2px solid
+    color-mix(in srgb, var(--surfacent-color-blue) 60%, transparent);
+  border-radius: 4px;
+  pointer-events: none !important;
+  background-color: color-mix(
+    in srgb,
+    var(--surfacent-color-blue) 5%,
+    transparent
+  );
+  box-sizing: border-box;
+  will-change: opacity;
+
+  &.enter {
+    animation: fadeIn 0.15s ease-out forwards;
+  }
+
+  &.exit {
+    animation: fadeOut 0.15s ease-out forwards;
+  }
+}
+
+.hoverTooltip {
+  position: fixed;
+  z-index: 99999; // Above saved markers; below the toolbar and annotation editor.
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.375rem;
+  pointer-events: none !important;
+  white-space: nowrap;
+  max-width: min(280px, calc(100vw - 16px - 1.2rem));
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &.enter {
+    animation: hoverTooltipIn 0.1s ease-out forwards;
+  }
+}
+
+.hoverReactPath {
+  font-size: 0.625rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hoverElementName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// =============================================================================
+// Markers Layer
+// =============================================================================
+
+.markersLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  z-index: 99998;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.fixedMarkersLayer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99998;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+// =============================================================================
+// Annotation Markers
+// =============================================================================
+
+.marker {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: var(--surfacent-color-blue);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  cursor: pointer;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  -webkit-user-select: none;
+  user-select: none;
+  will-change: transform, opacity;
+  contain: layout style;
+  z-index: 1;
+
+  &:hover {
+    z-index: 2;
+  }
+
+  // Only apply transitions when NOT animating
+  &:not(.enter):not(.exit):not(.clearing) {
+    transition:
+      background-color 0.15s ease,
+      transform 0.1s ease;
+  }
+
+  &.enter {
+    animation: markerIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  &.exit {
+    animation: markerOut 0.2s ease-out both;
+    pointer-events: none;
+  }
+
+  &.clearing {
+    animation: markerOut 0.15s ease-out both;
+    pointer-events: none;
+  }
+
+  // Only apply hover scale when not animating
+  &:not(.enter):not(.exit):not(.clearing):hover {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  &.pending {
+    position: fixed;
+    background-color: var(--surfacent-color-blue);
+    cursor: default;
+  }
+
+  &.fixed {
+    position: fixed;
+  }
+
+  &.hovered {
+    background-color: var(--surfacent-color-red);
+  }
+}
+
+.renumber {
+  display: block;
+  animation: renumberRoll 0.2s ease-out;
+}
+
+@keyframes renumberRoll {
+  0% {
+    transform: translateX(-40%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// =============================================================================
+// Settings Panel
+// =============================================================================
+
+.settingsPage {
+  min-width: 100%;
+  flex-shrink: 0;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+  transition-delay: 0s;
+  opacity: 1;
+}
+
+.dropdownButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: transparent;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+  letter-spacing: -0.0094em;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  svg {
+    opacity: 0.6;
+  }
+}
+
+// Old dropdown styles kept for potential future use
+// @keyframes dropdownTextFade removed - using cycle button instead
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  &::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  &:hover::-webkit-slider-thumb {
+    transform: scale(1.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  &:hover::-moz-range-thumb {
+    transform: scale(1.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+}
+
+// MCP Status Dot
+
+// =============================================================================
+// Draw Canvas
+// =============================================================================
+
+// =============================================================================
+// Drag Selection
+// =============================================================================
+
+// =============================================================================
+// Light Mode
+// =============================================================================
+
+[data-surfacent-theme="light"] {
+
+  .divider {
+    background: rgba(0, 0, 0, 0.1);
+  }
+}

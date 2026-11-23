@@ -1,0 +1,98 @@
+/*
+ * The playground: the toolbar's UI (surfacent-ui) in every state, around its
+ * own chrome (pg-*), which follows data-theme while the components stay dark.
+ */
+@layer ui-sdk;
+
+@import "tailwindcss" source(none);
+@import "surfacent-ui/styles.css";
+
+@source "./";
+@source "../../../../packages/ui/src";
+
+/*
+ * The playground's own chrome (sidebar, inset card, states panel), laid out
+ * like the plez playground. It follows data-theme; the components stay dark.
+ */
+@theme inline {
+  --color-pg-bg: var(--pg-bg);
+  --color-pg-inset: var(--pg-inset);
+  --color-pg-text: var(--pg-text);
+  --color-pg-muted: var(--pg-muted);
+  --color-pg-faint: var(--pg-faint);
+  --color-pg-line: var(--pg-line);
+  --color-pg-hover: var(--pg-hover);
+  --color-pg-active: var(--pg-active);
+}
+
+:root {
+  --pg-bg: #f4f4f2;
+  --pg-inset: #fdfdfc;
+  --pg-text: #1a1a19;
+  --pg-muted: #6f6e69;
+  --pg-faint: #a3a29d;
+  --pg-line: rgb(0 0 0 / 0.08);
+  --pg-hover: rgb(0 0 0 / 0.04);
+  --pg-active: rgb(0 0 0 / 0.07);
+  --pg-inset-shadow: 0 0 0 1px rgb(0 0 0 / 0.04), 0 1px 2px rgb(0 0 0 / 0.06);
+}
+
+:root {
+  /* sugar-high's token colors for the Code tab. */
+  --sh-class: #8250df;
+  --sh-entity: #8250df;
+  --sh-identifier: var(--pg-text);
+  --sh-sign: var(--pg-muted);
+  --sh-property: #0550ae;
+  --sh-jsxliterals: var(--pg-text);
+  --sh-string: #0a3069;
+  --sh-keyword: #cf222e;
+  --sh-comment: var(--pg-faint);
+}
+
+:root[data-theme="dark"] {
+  --sh-class: #d2a8ff;
+  --sh-entity: #d2a8ff;
+  --sh-property: #79c0ff;
+  --sh-string: #a5d6ff;
+  --sh-keyword: #ff7b72;
+}
+
+:root[data-theme="dark"] {
+  --pg-bg: #111110;
+  --pg-inset: #191918;
+  --pg-text: #eeeeec;
+  --pg-muted: #b5b3ad;
+  --pg-faint: #7c7b76;
+  --pg-line: rgb(255 255 255 / 0.072);
+  --pg-hover: rgb(255 255 255 / 0.05);
+  --pg-active: rgb(255 255 255 / 0.08);
+  --pg-inset-shadow: inset 0 1px 0 rgb(255 255 255 / 0.01), inset 0 0 0 1px rgb(255 255 255 / 0.02),
+    0 1px 1px -0.5px rgb(0 0 0 / 0.18);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    background: var(--pg-bg);
+  }
+
+  html[data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  body {
+    color: var(--pg-text);
+    font-family: var(--font-site);
+    font-size: 14px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    color: #111;
+    background: #ededed;
+  }
+
+}

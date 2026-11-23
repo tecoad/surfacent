@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Claude Code: local settings and dev server configs
+.claude/
+
+# Copied from the root README when the package is packed
+packages/surfacent/README.md
+
+# OS and editors
+.DS_Store
+.idea/
+*.swp

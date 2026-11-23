@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Surfacent</title>
+    <script>
+      // The demo is the default page. A path without its trailing slash
+      // (/playground, /suggest, /demo) lands here too: send it to its page.
+      const path = location.pathname.replace(/\/+$/, "")
+      const page = path === "/playground" || path === "/suggest" ? path + "/" : "/demo/"
+      location.replace(page + location.search + location.hash)
+    </script>
+  </head>
+  <body></body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "erasableSyntaxOnly": true,
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src", "scripts", "vite.config.ts"]
+}

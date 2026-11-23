@@ -1,0 +1,20 @@
+/*
+ * An app before its migration: Tailwind's own scales (unlike the demo, which
+ * turns the text scale off) and the surfacent plugin installed with its
+ * defaults, as step 2 of the migration prompt leaves it. Suggestions preview
+ * on top of it.
+ */
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* The source, like the demo's CSS, so edits to an aspect hot-reload. */
+@plugin "../../../../packages/core/src/tailwind.ts";
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

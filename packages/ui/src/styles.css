@@ -1,0 +1,418 @@
+/*
+ * The toolbar's UI: its tokens (the dark settings panel, 13px system
+ * type, accent palette and motion), state variants, and the component styles
+ * the parts in this package use. Import it after Tailwind, with ui-sdk's layer
+ * declared first so these styles win over its behavior CSS:
+ *
+ *   @layer ui-sdk;
+ *   @import "tailwindcss";
+ *   @import "surfacent-ui/styles.css";
+ *   @source "<path to surfacent-ui/src>";
+ *
+ * Everything here works in a shadow root too (`:host` alongside `:root`).
+ */
+@theme {
+  --font-chrome: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-site: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Panel (dark theme) */
+  --color-chrome-surface: #1a1a1a;
+  --color-chrome-popup: #1a1a1a;
+  --color-chrome-raised: #383838;
+  --color-chrome-control: rgb(255 255 255 / 0.05);
+  --color-chrome-hover: rgb(255 255 255 / 0.1);
+  --color-chrome-selected: rgb(255 255 255 / 0.15);
+  --color-chrome-border: rgb(255 255 255 / 0.1);
+  --color-chrome-strong: rgb(255 255 255 / 0.3);
+  --color-chrome-divider: rgb(255 255 255 / 0.07);
+  --color-chrome-track: #484848;
+  --color-chrome-text: #ffffff;
+  --color-chrome-soft: rgb(255 255 255 / 0.85);
+  --color-chrome-muted: rgb(255 255 255 / 0.5);
+  --color-chrome-faint: rgb(255 255 255 / 0.4);
+  --color-chrome-ghost: rgb(255 255 255 / 0.2);
+  /* Code (computed styles): property names in purple, values at --color-chrome-soft. */
+  --color-chrome-code-key: #c792ea;
+
+  /* Accent palette (COLOR_OPTIONS); blue is the default accent. */
+  --color-chrome-accent: #0088ff;
+  --color-chrome-focus: #0088ff;
+  /* An agent's: listening, and the notes it works on. No marker takes it. */
+  --color-chrome-agent: #6155f5;
+  --color-chrome-cyan: #00c3d0;
+  --color-chrome-green: #34c759;
+  --color-chrome-yellow: #ffcc00;
+  --color-chrome-orange: #ff8d28;
+  --color-chrome-red: #ff383c;
+
+  /* Type: 13px labels and values, 12px fields, 11px notes, 10px badges. */
+  --text-ag: 13px;
+  --text-ag--line-height: 20px;
+  --text-ag--letter-spacing: -0.0094em;
+  --text-ag-sm: 12px;
+  --text-ag-sm--line-height: 16px;
+  --text-ag-xs: 11px;
+  --text-ag-xs--line-height: 14px;
+  --text-ag-2xs: 10px;
+  --text-ag-2xs--line-height: 12px;
+
+  /*
+   * Motion in plain CSS keywords: an unnamed transition is
+   * `ease`, and `ease-out` is the CSS one, not Tailwind's curve.
+   */
+  --default-transition-timing-function: ease;
+  --ease-out: ease-out;
+  --ease-in: ease-in;
+  --ease-panel: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-glide: cubic-bezier(0.19, 1, 0.22, 1);
+  /* A surface resizing in place: a snappy height change. */
+  --ease-morph: cubic-bezier(0.25, 1, 0.5, 1);
+
+  --animate-cycle-in: cycle-in 0.2s ease-out;
+}
+
+/* The palette switches to Display P3 where the screen has it. */
+@supports (color: color(display-p3 0 0 0)) {
+  :root,
+  :host {
+    --color-chrome-accent: color(display-p3 0 0.53 1);
+    --color-chrome-focus: color(display-p3 0 0.53 1);
+    --color-chrome-agent: color(display-p3 0.38 0.33 0.96);
+    --color-chrome-cyan: color(display-p3 0 0.76 0.82);
+    --color-chrome-green: color(display-p3 0.2 0.78 0.35);
+    --color-chrome-yellow: color(display-p3 1 0.8 0);
+    --color-chrome-orange: color(display-p3 1 0.55 0.16);
+    --color-chrome-red: color(display-p3 1 0.22 0.24);
+  }
+}
+
+/*
+ * State variants. Each one also matches `data-force`, so the playground can
+ * pin a hover, focus or press on a real component: <button data-force="hover focus">.
+ */
+@custom-variant hov (&:is(:hover, [data-force~="hover"]));
+@custom-variant fv (&:is(:focus-visible, [data-force~="focus"]));
+@custom-variant act (&:is(:active, [data-force~="active"]));
+@custom-variant foc (&:is(:focus, [data-force~="focus"]));
+@custom-variant group-hov (&:where(.group:is(:hover, [data-force~="hover"]) *));
+@custom-variant group-act (&:where(.group:is(:active, [data-force~="active"]) *));
+@custom-variant group-fv-within (&:where(.group:is(:has(:focus-visible), [data-force~="focus"]) *));
+@custom-variant group-fv (&:where(.group:is(:focus-visible, [data-force~="focus"]) *));
+@custom-variant group-open (&:where(.group:is([data-open], [data-force~="open"]) *));
+@custom-variant fv-within (&:is(:has(:focus-visible), [data-force~="focus"]));
+
+/* ui-sdk adds these to the document; a shadow root needs its own copy. */
+@layer ui-sdk {
+  :where([data-slot][hidden]:not([hidden="until-found"])) {
+    display: none !important;
+  }
+
+  /* Without it the browser's popover box (white, square, bordered) shows behind a rounded popup. */
+  :where([data-slot][popover]) {
+    inset: auto;
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    color: inherit;
+    background: none;
+  }
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  /*
+   * The dark chrome: system type with kerning, white on #1a1a1a.
+   * Everything inside a panel, card or popup sits in one of these.
+   */
+  .ag-chrome {
+    color-scheme: dark;
+    color: var(--color-chrome-text);
+    font-family: var(--font-chrome);
+    font-size: 13px;
+    line-height: 20px;
+    letter-spacing: -0.0094em;
+    font-feature-settings: "kern";
+  }
+
+  /*
+   * Panel motion (_panel-motion.scss): 4px toward the anchor, 98% and a 2px
+   * blur; 160ms in, 120ms out, cubic-bezier(.25,.46,.45,.94).
+   */
+  .ag-panel-motion {
+    --ag-x: 0px;
+    --ag-y: 4px;
+    transform-origin: var(--transform-origin, bottom right);
+    transition:
+      opacity 160ms var(--ease-panel),
+      transform 160ms var(--ease-panel),
+      filter 160ms var(--ease-panel);
+  }
+  .ag-panel-motion[data-side="bottom"] {
+    --ag-y: -4px;
+  }
+  .ag-panel-motion[data-side="left"] {
+    --ag-x: 4px;
+    --ag-y: 0px;
+  }
+  .ag-panel-motion[data-side="right"] {
+    --ag-x: -4px;
+    --ag-y: 0px;
+  }
+  .ag-panel-motion:is([data-starting-style], [data-ending-style]) {
+    opacity: 0;
+    transform: translate(var(--ag-x), var(--ag-y)) scale(0.98);
+    filter: blur(2px);
+  }
+  .ag-panel-motion[data-ending-style] {
+    transition-duration: 120ms;
+  }
+
+  /*
+   * Number fields (Edit page). Carets show while the field is hovered or holds
+   * focus; in compact bars the divider after a hovered cell slides aside.
+   */
+  .vf-caret {
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.15s ease,
+      translate 0.15s ease,
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .vf:is(:hover, :focus-within, [data-force~="hover"], [data-force~="focus"]) .vf-caret {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .vf:is(:hover, :focus-within, [data-force~="hover"], [data-force~="focus"]) .vf-caret[data-disabled] {
+    opacity: 0.35;
+  }
+  .vf-bar > .vf + .vf::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 0;
+    width: 1px;
+    height: 12px;
+    box-shadow: inset 1px 0 0 var(--color-chrome-border);
+    transition: translate 0.15s ease;
+    pointer-events: none;
+  }
+  .vf-bar > .vf:is(:hover, :focus-within, [data-force~="hover"]) + .vf::before {
+    translate: var(--caret-shift, 2px) 0;
+  }
+  .vf-bar > .vf:not(:last-child):is(:hover, :focus-within, [data-force~="hover"]) .vf-caret {
+    translate: var(--caret-shift, 2px) 0;
+  }
+
+  /* Hex rows with a remove button: the field makes room while hovered. */
+  .palette-field {
+    width: 100%;
+    transition: width 0.2s var(--ease-drawer);
+  }
+  .palette-remove {
+    opacity: 0;
+    scale: 0.8;
+    pointer-events: none;
+    transition:
+      opacity 0.2s ease-out,
+      scale 0.2s var(--ease-pop),
+      background-color 0.12s ease,
+      color 0.12s ease;
+  }
+  .palette-row:has(.palette-remove):is(:hover, :focus-within, [data-force~="hover"]) .palette-field {
+    width: calc(100% - 28px);
+  }
+  .palette-row:is(:hover, :focus-within, [data-force~="hover"]) .palette-remove {
+    opacity: 1;
+    scale: 1;
+    pointer-events: auto;
+  }
+
+  /* Easing handles: a white dot that takes the accent while hovered, focused or dragged. */
+  .easing-handle::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--color-chrome-surface);
+    transition:
+      background-color 0.15s ease,
+      scale 0.2s var(--ease-pop);
+  }
+  .easing-handle:is(:hover, :focus-visible, [data-dragging], [data-force~="hover"])::after {
+    background: var(--color-chrome-accent);
+    scale: 1.25;
+  }
+}
+
+/*
+ * The dock (the floating toolbar). Its row of icons wakes up with the
+ * surface: blur 6px → 0, 40% → 100%, faster out than in.
+ */
+@layer components {
+  .dock-row {
+    opacity: 0;
+    filter: blur(6px);
+    scale: 0.4;
+    transform-origin: right center;
+    pointer-events: none;
+    transition:
+      filter 0.14s ease-out,
+      opacity 0.14s ease-out,
+      scale 0.36s var(--ease-glide);
+  }
+  .dock-surface[data-expanded] .dock-row {
+    opacity: 1;
+    filter: blur(0);
+    scale: 1;
+    pointer-events: auto;
+    transition:
+      filter 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.24s ease-out,
+      scale 0.42s var(--ease-glide);
+  }
+
+  /* The open toolbar's launcher shows a 34px surface on hover, inside its 44px hit area. */
+  .dock-launcher::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border-radius: 9999px;
+    transition:
+      background-color 0.15s ease,
+      scale 0.1s ease;
+  }
+  .dock-launcher > svg {
+    position: relative;
+  }
+  .dock-surface[data-expanded] .dock-launcher:hover::before {
+    background: rgb(255 255 255 / 0.12);
+  }
+  .dock-surface[data-expanded] .dock-launcher:active::before,
+  .dock-surface[data-expanded] .dock-launcher:active .dock-glyph {
+    scale: 0.92;
+  }
+
+  /* Two strokes and a dot cross into an ×. */
+  .dock-glyph {
+    overflow: visible;
+    transition: scale 0.1s ease;
+  }
+  .dock-glyph :is(path, circle) {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.16s ease;
+  }
+  .dock-glyph :is(.dock-glyph-top, .dock-glyph-bottom) {
+    vector-effect: non-scaling-stroke;
+  }
+  .dock-glyph[data-open] .dock-glyph-top {
+    transform: translate(2.25px, 3px) rotate(45deg) scaleX(1.412);
+  }
+  .dock-glyph[data-open] .dock-glyph-bottom {
+    transform: translateY(-3px) rotate(-45deg) scaleX(0.923);
+  }
+  .dock-glyph[data-open] .dock-glyph-dot {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* The dock pops in (toolbarEnter). */
+@keyframes dock-enter {
+  from {
+    opacity: 0;
+    scale: 0.5;
+    rotate: 90deg;
+  }
+}
+
+/* The Character pad's dot grid. */
+@utility pad-dots {
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.12) 1px, transparent 1px);
+  background-position: 50%;
+  background-size: 16px 16px;
+}
+
+/*
+ * A scroll area's edge fades (up to 32px). Each grows with how far the
+ * content reaches past its edge, which ui-sdk's ScrollArea writes on its root;
+ * the viewport takes the values with `inherit`, since they don't inherit.
+ */
+@utility edge-fade {
+  --scroll-area-overflow-y-start: inherit;
+  --scroll-area-overflow-y-end: inherit;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 min(32px, var(--scroll-area-overflow-y-start, 0px)),
+    #000 calc(100% - min(32px, var(--scroll-area-overflow-y-end, 0px))),
+    transparent
+  );
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* A cycle button's new text drops in from 6px above (cycleTextIn). */
+@keyframes cycle-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* A new custom color: its swatch pops in (scaleIn, 0.85 → 1). */
+@keyframes swatch-pop {
+  from {
+    opacity: 0;
+    scale: 0.85;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

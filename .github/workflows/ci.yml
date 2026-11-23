@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node 24 runs the TypeScript sources directly (tests, scripts, the demo's plugin).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run knip
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run check:snippets
+
+      # The published package: packed and installed in an empty project.
+      - run: npm run check:package

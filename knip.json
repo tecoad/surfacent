@@ -1,0 +1,36 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreBinaries": [
+    "vite",
+    "vitest"
+  ],
+  "ignore": [
+    "packages/tool/src/design/ui.css"
+  ],
+  "workspaces": {
+    ".": {
+      "ignoreDependencies": [
+        "@semantic-release/commit-analyzer",
+        "@semantic-release/release-notes-generator",
+        "@semantic-release/npm",
+        "@semantic-release/github"
+      ]
+    },
+    "packages/*": {},
+    "apps/demo": {
+      "entry": [
+        "scripts/*.ts"
+      ]
+    },
+    "packages/surfacent": {
+      "entry": [
+        "scripts/*.ts"
+      ],
+      "ignoreDependencies": [
+        "@modelcontextprotocol/sdk",
+        "zod",
+        "vite"
+      ]
+    }
+  }
+}

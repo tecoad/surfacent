@@ -1,0 +1,19 @@
+/*
+ * The toolbar's UI stylesheet: surfacent-ui (its dark look on ui-sdk
+ * parts) and the Tailwind classes of this package. The Vite plugin compiles it
+ * with Tailwind (virtual:surfacent-ui-css) and the toolbar puts it in its
+ * shadow root, so it never meets the page's own CSS, Tailwind or not.
+ */
+/*
+ * Layer order: the SCSS the toolbar still uses for markers, outlines and the
+ * layout tools (in `legacy`, see the toolbar's style tags) goes after
+ * Tailwind's preflight and before its components and utilities, so neither
+ * side overrides the other.
+ */
+@layer ui-sdk, theme, base, legacy, components, utilities;
+
+@import "tailwindcss" source(none);
+@import "surfacent-ui/styles.css";
+
+@source "../";
+@source "../../../ui/src";

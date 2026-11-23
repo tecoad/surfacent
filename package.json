@@ -1,0 +1,37 @@
+{
+  "name": "surfacent-monorepo",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "cd apps/demo && vite",
+    "build": "cd apps/demo && vite build",
+    "css": "node packages/core/scripts/print-css.ts",
+    "migration": "node packages/core/scripts/print-migration.ts",
+    "mcp": "node packages/mcp/src/cli.ts mcp --http-only",
+    "typecheck": "tsc -p packages/core && tsc -p packages/ui && tsc -p packages/tool && tsc -p packages/mcp && tsc -p packages/surfacent && tsc -p apps/demo",
+    "check:snippets": "node apps/demo/scripts/check-snippets.ts",
+    "package": "cd packages/surfacent && npm run build",
+    "check:package": "node packages/surfacent/scripts/check-package.ts",
+    "test": "node --test packages/core/test/*.test.ts packages/mcp/test/*.test.ts && cd packages/tool && vitest run",
+    "lint": "oxlint",
+    "knip": "knip"
+  },
+  "devDependencies": {
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/github": "^12.0.11",
+    "@semantic-release/npm": "^13.2.0",
+    "@semantic-release/release-notes-generator": "^14.1.1",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "knip": "^6.47.0",
+    "oxlint": "^1.94.0",
+    "semantic-release": "^25.0.9",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

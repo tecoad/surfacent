@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    // vite.ts may run in Node with native type stripping.
+    "erasableSyntaxOnly": true,
+    "types": ["node"]
+  },
+  "include": ["src", "vite.ts"]
+}

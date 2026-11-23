@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* Dark theme follows a `dark` class on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Text sizes are roles (data-text), so Tailwind's own scale (text-xs … text-9xl)
+ * is off. Fonts are ds-tool's, the reference for type and proportions.
+ */
+@theme {
+  --text-*: initial;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/*
+ * Surface, corners, spacing… Settings below are edited live by the toolbar.
+ * Apps use `@plugin "surfacent/tailwind"`. The playground points at the
+ * source so edits to an aspect hot-reload (Tailwind caches package plugins).
+ */
+@plugin "../../../packages/core/src/tailwind.ts" {
+  tone-ground: 0.855;
+  tone-ground-dark: 0.17;
+  tone-step: 0.073;
+  tint-chroma: 0.008;
+  tint-hue: 99;
+  light-highlight: 0.63;
+  response-rise: 0.6;
+  response-press: 0.6;
+  response-motion: 140;
+  accent-hue: 262;
+  accent-chroma: 0.19;
+  accent-tone: 0.58;
+  accent-light: 0.5;
+  accent-tint: 0.15;
+  corner-radius: 20;
+  corner-min: 0.4;
+  corner-concentric: 1;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}

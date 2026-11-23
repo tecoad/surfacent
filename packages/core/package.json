@@ -1,0 +1,14 @@
+{
+  "name": "surfacent-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aspect registry (surface, corners, spacing…) and the Tailwind v4 plugin that turns data-* intents into CSS. TypeScript source, run directly (Node type stripping, Vite).",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tailwind": "./src/tailwind.ts"
+  },
+  "peerDependencies": {
+    "tailwindcss": "^4.0.0"
+  }
+}

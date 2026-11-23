@@ -4,6 +4,8 @@
 //   settings in the `@plugin "surfacent/tailwind"` block of your CSS (Save).
 // - Serves /__surfacent/mcp for the toolbar's MCP page: whether surfacent's
 //   MCP server is running, and the commands that start it.
+// - Adds surfacent's MCP server to the project's .mcp.json, which Claude Code
+//   reads (it asks once before starting a project's server).
 //
 // The toolbar itself comes compiled; this repo's demo compiles it from source
 // with `surfacentSource()` from ./dev.ts.
@@ -32,9 +34,11 @@ export interface SurfacentOptions {
   css?: string;
   /** Port of surfacent's MCP server (its `--port`). Defaults to SURFACENT_PORT, like the server, then 4848. */
   mcpPort?: number;
+  /** Add surfacent's MCP server to the project's .mcp.json. Defaults to true. */
+  mcpConfig?: boolean;
 }
 
-export function surfacent({ css = "src/index.css", mcpPort = Number(process.env.SURFACENT_PORT) || 4848 }: SurfacentOptions = {}): Plugin {
+export function surfacent({ css = "src/index.css", mcpPort = Number(process.env.SURFACENT_PORT) || 4848, mcpConfig = true }: SurfacentOptions = {}): Plugin {
   let cssFile = "";
   return {
     name: "surfacent:settings",
@@ -43,6 +47,7 @@ export function surfacent({ css = "src/index.css", mcpPort = Number(process.env.
       cssFile = path.resolve(config.root, css);
     },
     configureServer(server) {
+      if (mcpConfig) addMcpConfig(server.config.root, mcpPort, (message) => server.config.logger.info(message));
       server.middlewares.use("/__surfacent/settings", async (req, res) => {
         try {
           if (req.method === "GET") {
@@ -89,6 +94,35 @@ function mcpSource(root: string): string | undefined {
     return entry ? fs.realpathSync(path.resolve(path.dirname(manifest), entry)) : undefined;
   } catch {
     return undefined;
+  }
+}
+
+/**
+ * Adds surfacent to .mcp.json at the project root (the nearest folder with a
+ * .git, else the Vite root). Leaves an existing entry and the other servers
+ * alone. Skipped in surfacent's own repo, which runs the server from source.
+ */
+function addMcpConfig(root: string, port: number, log: (message: string) => void) {
+  if (mcpSource(root)) return;
+  const file = path.join(projectRoot(root), ".mcp.json");
+  let config: { mcpServers?: Record<string, unknown> } = {};
+  try {
+    if (fs.existsSync(file)) config = JSON.parse(fs.readFileSync(file, "utf8")) as typeof config;
+  } catch {
+    log(`surfacent: ${file} isn't valid JSON, so the MCP server wasn't added to it.`);
+    return;
+  }
+  if (config.mcpServers?.surfacent) return;
+  const args = ["-y", "surfacent", "mcp", ...(port === 4848 ? [] : ["--port", String(port)])];
+  config.mcpServers = { ...config.mcpServers, surfacent: { command: "npx", args } };
+  fs.writeFileSync(file, `${JSON.stringify(config, null, 2)}\n`);
+  log(`surfacent: added the MCP server to ${path.relative(process.cwd(), file) || file}.`);
+}
+
+function projectRoot(root: string): string {
+  for (let dir = root; ; dir = path.dirname(dir)) {
+    if (fs.existsSync(path.join(dir, ".git"))) return dir;
+    if (path.dirname(dir) === dir) return root;
   }
 }
 

@@ -80,14 +80,16 @@ export default defineConfig({
 });
 ```
 
-It does two things, in development only:
+It does three things, in development only:
 - It lets the toolbar read and save the settings in the `@plugin` block.
 - It tells the toolbar where the MCP server is and how to start it.
+- It adds surfacent's MCP server to `.mcp.json` at the project root, so Claude Code offers it in this project (step 4). An existing `surfacent` entry and other servers are left as they are.
 
 | Option | Default | |
 | --- | --- | --- |
 | `css` | `"src/index.css"` | The CSS file with the `@plugin "surfacent/tailwind"` block, relative to the Vite root. |
 | `mcpPort` | `SURFACENT_PORT`, else `4848` | The MCP server's port, if you run it on another one. |
+| `mcpConfig` | `true` | Add the MCP server to the project's `.mcp.json`. |
 
 ### 3. The toolbar
 
@@ -118,7 +120,7 @@ The exact JSX line of a picked element comes from React's development build, so 
 
 ### 4. Your coding agent (MCP)
 
-The toolbar hands notes to your agent through surfacent's MCP server. Connect Claude Code once, for every project:
+The toolbar hands notes to your agent through surfacent's MCP server. With the Vite plugin, the project's `.mcp.json` already has it: Claude Code asks once to approve it. Commit that file so everyone on the project gets it. To connect Claude Code once for every project instead:
 
 ```bash
 claude mcp add surfacent -s user -- npx -y surfacent mcp

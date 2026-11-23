@@ -28,6 +28,7 @@
   ],
   "scripts": {
     "build": "rm -rf dist && tsup",
+    "watch": "tsup --watch src --watch ../core/src --watch ../tool --watch ../ui/src --watch ../mcp/src",
     "prepack": "npm run build && cp ../../README.md README.md"
   },
   "engines": {

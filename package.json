@@ -15,6 +15,7 @@
     "typecheck": "tsc -p packages/core && tsc -p packages/ui && tsc -p packages/tool && tsc -p packages/mcp && tsc -p packages/surfacent && tsc -p apps/demo",
     "check:snippets": "node apps/demo/scripts/check-snippets.ts",
     "package": "cd packages/surfacent && npm run build",
+    "package:watch": "cd packages/surfacent && npm run watch",
     "check:package": "node packages/surfacent/scripts/check-package.ts",
     "test": "node --test packages/core/test/*.test.ts packages/mcp/test/*.test.ts && cd packages/tool && vitest run",
     "lint": "oxlint",

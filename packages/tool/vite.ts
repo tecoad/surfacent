@@ -17,10 +17,11 @@ import os from "node:os";
 import path from "node:path";
 import type { Plugin } from "vite";
 
-// `@plugin "surfacent/tailwind"` in apps, or a relative path to
-// core/src/tailwind.ts where aspects are developed (Tailwind only hot-reloads
-// plugins imported by relative path).
-const PLUGIN_BLOCK = /(@plugin\s+(["'])[^"']*(?:surfacent\/tailwind|core\/src\/tailwind\.ts)\2\s*)(\{[^}]*\}|;)/;
+// `@plugin "surfacent/tailwind"` in apps, or a relative path where aspects are
+// developed (Tailwind only hot-reloads plugins imported by relative path): to
+// core/src/tailwind.ts here, to surfacent/dist/tailwind.js in an app linked to
+// a local build.
+const PLUGIN_BLOCK = /(@plugin\s+(["'])[^"']*(?:surfacent\/tailwind|surfacent\/dist\/tailwind\.js|core\/src\/tailwind\.ts)\2\s*)(\{[^}]*\}|;)/;
 
 type PluginBlockOptions = Record<string, string>;
 

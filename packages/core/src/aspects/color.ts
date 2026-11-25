@@ -24,12 +24,20 @@ const NOT_SURFACE = ":not([data-surface])";
 const HUES = [
   { value: "red", label: "Red", hue: 25, use: "Danger, errors, destructive actions." },
   { value: "orange", label: "Orange", hue: 50, use: "Warnings that need attention." },
+  { value: "amber", label: "Amber", hue: 70, use: "Caution, between a warning and an alert." },
   { value: "yellow", label: "Yellow", hue: 90, use: "Alerts and pending states." },
+  { value: "lime", label: "Lime", hue: 130, use: "Categories and tags, between yellow and green." },
   { value: "green", label: "Green", hue: 150, use: "Success: done, healthy, ready." },
+  { value: "emerald", label: "Emerald", hue: 165, use: "Categories and tags, between green and teal." },
   { value: "teal", label: "Teal", hue: 190, use: "Secondary information." },
+  { value: "cyan", label: "Cyan", hue: 215, use: "Categories and tags, between teal and blue." },
   { value: "blue", label: "Blue", hue: 255, use: "Information." },
+  { value: "indigo", label: "Indigo", hue: 275, use: "Categories and tags, between blue and violet." },
+  { value: "violet", label: "Violet", hue: 290, use: "Categories and tags, between indigo and purple." },
   { value: "purple", label: "Purple", hue: 300, use: "Highlights: new, beta." },
+  { value: "fuchsia", label: "Fuchsia", hue: 320, use: "Categories and tags, between purple and pink." },
   { value: "pink", label: "Pink", hue: 350, use: "Categories and tags." },
+  { value: "rose", label: "Rose", hue: 15, use: "Categories and tags, between pink and red." },
 ];
 
 /** Colored materials, numbered for `--surface-material` (the neutral is 0). */
@@ -81,10 +89,16 @@ const tint = (id: number, hue: string): Record<string, string> => ({
 const same = (a: string, b: string) => `max(0, 1 - max(${a} - ${b}, ${b} - ${a}))`;
 
 /** A color's tone where an element is: on its own material, that surface's tone; anywhere else, the color in the light there. */
+/** A color in the light where an element is: its page-plane tone, moved by its share of how far the neutral there is from the ground. */
+const IN_THE_LIGHT_HERE = "var(--accent-tone) + var(--accent-light) * (var(--surface-n) - var(--tone-ground))";
+
 const toneHere = (id: string) => {
   const on = same("var(--surface-material)", id);
-  return `clamp(0, calc(${on} * var(--surface-l) + (1 - ${on}) * (var(--accent-tone) + var(--accent-light) * (var(--surface-n) - var(--tone-ground)))), 1)`;
+  return `clamp(0, calc(${on} * var(--surface-l) + (1 - ${on}) * (${IN_THE_LIGHT_HERE})), 1)`;
 };
+
+/** The hue colors' tone where an element is, for `--hue-<name>`: the color in the light there, one tone for every hue. */
+const HUE_LIGHT_HERE = `clamp(0, calc(${IN_THE_LIGHT_HERE}), 1)`;
 
 // Colored ink: the color lying on the surface below, moved to the nearest tone
 // that stays legible there (4.5:1, taking luminance as L³): darker on light
@@ -103,12 +117,20 @@ const COLORED_INK: Record<string, string> = {
 const HUE_WHEN: Record<string, string> = {
   red: "Errors and destructive actions only: a delete button, an error message, a failed status.",
   orange: "Warnings that need action soon: an expiring plan, a degraded service.",
+  amber: "Cautions softer than a warning: a draft, a limit getting close.",
   yellow: "Alerts and in-between states: pending, in review, attention without urgency.",
+  lime: "Categories, tags and chart series that need a yellow-green of their own. Success stays green.",
   green: "Success and healthy states: done, active, paid, online.",
+  emerald: "Categories, tags and chart series that need a color between green and teal. Success stays green.",
   teal: "Secondary information that needs a color of its own next to blue.",
+  cyan: "Categories, tags and chart series that need a color between teal and blue. Information stays blue.",
   blue: "Neutral information: tips, info badges, informational callouts.",
+  indigo: "Categories, tags and chart series that need a color between blue and violet. Information stays blue.",
+  violet: "Categories, tags and chart series that need a color between indigo and purple.",
   purple: "Highlights that mark something as new: new, beta, pro.",
+  fuchsia: "Categories, tags and chart series that need a color between purple and pink.",
   pink: "Categories and tags that only need to look different from one another.",
+  rose: "Categories, tags and chart series that need a color between pink and red. Errors stay red.",
 };
 
 const swatch = (hue: string) => `oklch(var(--accent-tone) var(--accent-chroma) ${hue})`;
@@ -246,6 +268,7 @@ export default defineAspect({
       "On an element without data-surface (links, icons, labels, ghost buttons) it colors only the ink, adjusted to stay legible.",
       "Use hue colors for meaning instead of palette colors: red for danger, orange or yellow for warnings, green for success, blue or teal for information.",
       "Focus rings, native controls and chart marks keep the accent token: ring-accent, accent-accent, bg-accent/80.",
+      "Gradients, chart series and effects that paint with several hues read var(--hue-<name>): the hue in the light where they sit.",
     ],
   },
   previewCss: ({ is }): CssRules => ({
@@ -264,10 +287,16 @@ export default defineAspect({
       [`${is("neutral")}${NOT_SURFACE}`]: { color: "var(--surface-ink)" },
       // Colored ink: on colored text and icons, and on tints, for the material each names below.
       [`[data-color]:not(${is("neutral")})${NOT_SURFACE}, ${is("tint")}${SURFACE}`]: COLORED_INK,
-      // The accent where each element is, for the `accent` Tailwind color.
+      // The accent where each element is, for the `accent` Tailwind color, and
+      // each hue color there, as `--hue-<name>` (no Tailwind color: an element
+      // takes a hue with data-color), for what paints with several at once:
+      // chart marks, gradients, a canvas.
       [`:root, ${ELEVATED}`]: {
         "--accent-l": toneHere("1"),
         "--accent": `oklch(var(--accent-l) ${chroma("var(--accent-l)")} var(--accent-hue))`,
+        "--hue-l": HUE_LIGHT_HERE,
+        "--hue-c": chroma("var(--hue-l)"),
+        ...Object.fromEntries(HUES.map((color) => [`--hue-${color.value}`, `oklch(var(--hue-l) var(--hue-c) ${color.hue})`])),
       },
     };
     for (const { value, id, hue } of MATERIALS) {

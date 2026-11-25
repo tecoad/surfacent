@@ -87,12 +87,20 @@ Why it exists: Palette classes (bg-blue-500, text-red-600, bg-red-50) pick a val
 - `neutral`: Back to the neutral material inside a color: its tone follows elevation again. A switch knob, a white card in a brand section. When: Only inside a colored element, for the parts that stay neutral.
 - `red`: Danger, errors, destructive actions. Same chroma, tone and step scale as the accent. When: Errors and destructive actions only: a delete button, an error message, a failed status.
 - `orange`: Warnings that need attention. Same chroma, tone and step scale as the accent. When: Warnings that need action soon: an expiring plan, a degraded service.
+- `amber`: Caution, between a warning and an alert. Same chroma, tone and step scale as the accent. When: Cautions softer than a warning: a draft, a limit getting close.
 - `yellow`: Alerts and pending states. Same chroma, tone and step scale as the accent. When: Alerts and in-between states: pending, in review, attention without urgency.
+- `lime`: Categories and tags, between yellow and green. Same chroma, tone and step scale as the accent. When: Categories, tags and chart series that need a yellow-green of their own. Success stays green.
 - `green`: Success: done, healthy, ready. Same chroma, tone and step scale as the accent. When: Success and healthy states: done, active, paid, online.
+- `emerald`: Categories and tags, between green and teal. Same chroma, tone and step scale as the accent. When: Categories, tags and chart series that need a color between green and teal. Success stays green.
 - `teal`: Secondary information. Same chroma, tone and step scale as the accent. When: Secondary information that needs a color of its own next to blue.
+- `cyan`: Categories and tags, between teal and blue. Same chroma, tone and step scale as the accent. When: Categories, tags and chart series that need a color between teal and blue. Information stays blue.
 - `blue`: Information. Same chroma, tone and step scale as the accent. When: Neutral information: tips, info badges, informational callouts.
+- `indigo`: Categories and tags, between blue and violet. Same chroma, tone and step scale as the accent. When: Categories, tags and chart series that need a color between blue and violet. Information stays blue.
+- `violet`: Categories and tags, between indigo and purple. Same chroma, tone and step scale as the accent. When: Categories, tags and chart series that need a color between indigo and purple.
 - `purple`: Highlights: new, beta. Same chroma, tone and step scale as the accent. When: Highlights that mark something as new: new, beta, pro.
+- `fuchsia`: Categories and tags, between purple and pink. Same chroma, tone and step scale as the accent. When: Categories, tags and chart series that need a color between purple and pink.
 - `pink`: Categories and tags. Same chroma, tone and step scale as the accent. When: Categories and tags that only need to look different from one another.
+- `rose`: Categories and tags, between pink and red. Same chroma, tone and step scale as the accent. When: Categories, tags and chart series that need a color between pink and red. Errors stay red.
 - `tint`, after a value (`accent tint`): The color as a dye instead of a pigment: a neutral surface leaning toward the color by Tint strength, with that share of its chroma, and text in the color. Status badges, callouts, soft buttons. When: Soft versions of a color: status badges, callouts, soft buttons, a selected row. The solid color is for the main action.
 - On a surface, data-color sets its material; keep data-surface for elevation. Surfaces inside a colored one take tones of that color relative to it.
 - Tinted fills (a light colored background with colored text) take the tint modifier: data-color="red tint" on a surface.
@@ -100,6 +108,7 @@ Why it exists: Palette classes (bg-blue-500, text-red-600, bg-red-50) pick a val
 - On an element without data-surface (links, icons, labels, ghost buttons) it colors only the ink, adjusted to stay legible.
 - Use hue colors for meaning instead of palette colors: red for danger, orange or yellow for warnings, green for success, blue or teal for information.
 - Focus rings, native controls and chart marks keep the accent token: ring-accent, accent-accent, bg-accent/80.
+- Gradients, chart series and effects that paint with several hues read var(--hue-<name>): the hue in the light where they sit.
 
 **data-response** — What the element answers to, in any mix. The physics is always the same: attention brings it closer, a press pushes it in. Values combine, separated by spaces.
 Why it exists: Hover and press classes (hover:bg-*, hover:shadow-*, active:scale-*) each invent their own motion, so similar controls answer differently. One law keeps every element coherent: attention brings it closer, a press pushes it in.

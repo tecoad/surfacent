@@ -87,12 +87,20 @@ const ASPECT_COLORS: SwatchOption[] = [
     [
       ["red", "Red", 25],
       ["orange", "Orange", 50],
+      ["amber", "Amber", 70],
       ["yellow", "Yellow", 90],
+      ["lime", "Lime", 130],
       ["green", "Green", 150],
+      ["emerald", "Emerald", 165],
       ["teal", "Teal", 190],
+      ["cyan", "Cyan", 215],
       ["blue", "Blue", 255],
+      ["indigo", "Indigo", 275],
+      ["violet", "Violet", 290],
       ["purple", "Purple", 300],
+      ["fuchsia", "Fuchsia", 320],
       ["pink", "Pink", 350],
+      ["rose", "Rose", 15],
     ] as const
   ).map(([value, label, hue]) => ({ value, label, color: `oklch(0.58 0.19 ${hue})` })),
 ]

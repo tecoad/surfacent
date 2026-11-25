@@ -234,10 +234,10 @@ Math borrowed from Ariakit Tailwind: OKLCH relative tones, the 0.645 lightness t
 `data-color` says what an element is made of:
 
 - `accent`: the brand color.
-- `red`, `orange`, `yellow`, `green`, `teal`, `blue`, `purple`, `pink`: hue colors, for meaning (danger, warnings, success, information) instead of a palette.
+- `red`, `orange`, `amber`, `yellow`, `lime`, `green`, `emerald`, `teal`, `cyan`, `blue`, `indigo`, `violet`, `purple`, `fuchsia`, `pink`, `rose`: hue colors, for meaning (danger, warnings, success, information) and for categories, tags and chart series that need a color of their own, instead of a palette.
 - `neutral`: back to the neutral material, inside a color.
 
-The hue colors are computed from the accent: its chroma, tone and step scale at fixed hues (red 25°, orange 50°, yellow 90°, green 150°, teal 190°, blue 255°, purple 300°, pink 350°), so every color has the same weight and moves with elevation the same way. They have no settings of their own. In the picker, values that are colors show as swatches.
+The hue colors are computed from the accent: its chroma, tone and step scale at fixed hues (red 25°, orange 50°, amber 70°, yellow 90°, lime 130°, green 150°, emerald 165°, teal 190°, cyan 215°, blue 255°, indigo 275°, violet 290°, purple 300°, fuchsia 320°, pink 350°, rose 15°), so every color has the same weight and moves with elevation the same way. They have no settings of their own. In the picker, values that are colors show as swatches.
 
 Each color comes solid (the pigment, the default) or as a **tint**, a modifier after the value: `data-color="red tint"`. A tint is the color as a dye: the neutral tone in its spot leaning toward the solid color there by `accent-tint`, with that share of the color's chroma, and text in the color, kept legible. It follows elevation like a neutral surface, and mixing after the neutral's white ceiling keeps it tinted on white cards. At 0 it's the neutral, at 1 the solid. Status badges, callouts and soft buttons are tints; a solid button inside a tint callout starts its own color in the light there.
 
@@ -255,7 +255,7 @@ On an element without `data-surface` (links, icons, ghost buttons), `data-color`
 <span data-surface="flat" data-color="red tint">Failed</span>
 ```
 
-The accent is also a Tailwind color, `accent`, lit like the surface it's used on, for what isn't a surface: focus rings (`ring-accent/60`), native controls (`accent-accent`), chart marks.
+The accent is also a Tailwind color, `accent`, lit like the surface it's used on, for what isn't a surface: focus rings (`ring-accent/60`), native controls (`accent-accent`), chart marks. Each hue color is a variable too, `--hue-<name>` (`var(--hue-red)`), in the light where it's used, for what paints with several hues at once: chart series, gradients, a canvas. It's no Tailwind color: an element takes a hue with `data-color`.
 
 | Key | Meaning |
 | --- | --- |
